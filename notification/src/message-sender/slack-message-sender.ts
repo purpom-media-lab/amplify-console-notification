@@ -3,11 +3,28 @@ import { MessageSender } from ".";
 import axios from "axios";
 
 export default class SlackMessageSender implements MessageSender {
-  sendMessage(record: SNSEventRecord) {
-    const slackHookUrl = process.env.WEBHOOK_URL!;
-    const body = {
-      text: record.Sns.Message
-    };
-    return axios.post(slackHookUrl, body);
-  }
+	sendMessage(record: SNSEventRecord) {
+		const slackHookUrl = process.env.WEBHOOK_URL!;
+
+		const text = record.Sns.Message;
+
+		let color = "#C0C0C0";
+		if (text.includes("SUCCEED")) {
+			color = "good";
+		} else if (text.includes("FAILED")) {
+			color = "danger";
+		} else if (text.includes("STARTED")) {
+			color = "#C69026";
+		}
+
+		const body = {
+			attachments: [
+				{
+					text: text,
+					color: color,
+				},
+			],
+		};
+		return axios.post(slackHookUrl, body);
+	}
 }
